@@ -1,6 +1,6 @@
 # soundbooze-morph
 
-Realtime Jack-Loris Stream Morphing
+( Realtime | Non-realtime ) Jack-Loris Stream Morphing
 
 ![alt text](https://raw.githubusercontent.com/soundbooze/soundbooze-morph/master/logo.png "Home")
 
