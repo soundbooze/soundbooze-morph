@@ -58,12 +58,10 @@ process (jack_nframes_t nframes, void *arg)
 
   jack_default_audio_sample_t *morphed = (jack_default_audio_sample_t *) morphstream (src1, src2, len, sr);
 
-  /*
   memcpy (out1, morphed, sizeof (jack_default_audio_sample_t) * nframes);
   memcpy (out2, morphed, sizeof (jack_default_audio_sample_t) * nframes);
 
   free(morphed);
-  */
 
   return 0;      
 }

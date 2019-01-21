@@ -26,7 +26,7 @@
 double *
 morphstream (PartialList *src1, PartialList *src2, unsigned int nsamps, double sr)
 {
-  double *samples = (double *) malloc (sizeof(nsamps));
+  double *samples = (double *) malloc (sizeof(double) * nsamps);
   unsigned int N = 0;
 
   LinearEnvelope *reference = 0;
