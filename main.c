@@ -49,8 +49,8 @@ process (jack_nframes_t nframes, void *arg)
 
   xtract_f0((double *) in1, len, &sr, &f0);
 
-  PartialList *src1 = synthesizestream (f0, in1, len, sr);
-  PartialList *src2 = synthesizestream (f0, in2, len, sr);
+  PartialList *src1 = synthesizestream (f0, (const double *) in1, len, sr);
+  PartialList *src2 = synthesizestream (f0, (const double *) in2, len, sr);
 
   jack_default_audio_sample_t *morphed = (jack_default_audio_sample_t *) morphstream (src1, src2, len, sr);
 
