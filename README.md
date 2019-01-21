@@ -6,6 +6,7 @@
 
 # TODO
 
+- Ring buffer copy (min: 1s +)
 - GUI parameter
 - footswitch MIDI / glass-ware
 
