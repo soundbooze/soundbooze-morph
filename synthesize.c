@@ -109,13 +109,15 @@ xtract_f0 (const double *data, const int N, const void *argv, double *result)
 }
 
 PartialList *
-synthesizestream (double f0, unsigned int nsamps, double sr)
+synthesizestream (double f0, double *in, unsigned int nsamps, double sr)
 {
   const unsigned long BUFSZ = nsamps;
 
   PartialList *partials = NULL;
 
   double samples[BUFSZ];
+
+  memcpy(samples, in, nsamps);
 
   analyzer_configure(.8 * f0, f0);
   analyzer_setFreqDrift(.2 * f0); 
