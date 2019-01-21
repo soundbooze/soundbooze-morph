@@ -20,7 +20,8 @@
  *
  */
 
-#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
 #include <string.h>
 #include <loris.h>
 
@@ -108,7 +109,7 @@ xtract_f0 (const double *data, const int N, const void *argv, double *result)
 }
 
 PartialList *
-synthesize (double f0, unsigned int nsamps, double sr)
+synthesizestream (double f0, unsigned int nsamps, double sr)
 {
   const unsigned long BUFSZ = nsamps;
 
