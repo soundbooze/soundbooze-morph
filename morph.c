@@ -20,17 +20,13 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <strings.h>
 #include <loris.h>
+#include <stdlib.h>
 
 double *
-morph (PartialList *src1, PartialList *src2, unsigned int nsamps, double sr)
+morphstream (PartialList *src1, PartialList *src2, unsigned int nsamps, double sr)
 {
-  const unsigned long BUFSZ = nsamps;
-
-  double samples[BUFSZ];
+  double *samples = (double *) malloc (sizeof(nsamps));
   unsigned int N = 0;
 
   LinearEnvelope *reference = 0;
@@ -73,13 +69,13 @@ morph (PartialList *src1, PartialList *src2, unsigned int nsamps, double sr)
   morph(src1, src2, morphenv, morphenv, morphenv, mrph);
 
   /* synthesize and export samples */
-  N = synthesize(mrph, samples, BUFSZ, sr);
+  N = synthesize(mrph, samples, nsamps, sr);
 
   /* cleanup */
-  destroyPartialList( mrph );
-  destroyPartialList( clar );
-  destroyPartialList( flut );
-  destroyLinearEnvelope( morphenv );
+  destroyPartialList(mrph);
+  destroyPartialList(src1);
+  destroyPartialList(src2);
+  destroyLinearEnvelope(morphenv);
 
   return samples;
 }
