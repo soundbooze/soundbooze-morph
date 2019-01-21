@@ -147,9 +147,9 @@ morphstream (PartialList *src1, PartialList *src2, unsigned int nsamps, double s
   LinearEnvelope *morphenv = createLinearEnvelope();
   PartialList *mrph = createPartialList();   
 
-  double src1_times[] = {0.4, 1.};
-  double src2_times[] = {0.2, 1.};
-  double tgt_times[] = {0.3, 1.2};
+  double src1_times[] = {0.1, 1.};
+  double src2_times[] = {0.3, 1.};
+  double tgt_times[] = {0.2, 1.2};
 
   /* channelize and distill */
   reference = createF0Estimate(src1, 350, 450, 0.01);
