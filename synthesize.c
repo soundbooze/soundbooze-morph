@@ -111,11 +111,9 @@ xtract_f0 (const double *data, const int N, const void *argv, double *result)
 PartialList *
 synthesizestream (double f0, double *in, unsigned int nsamps, double sr)
 {
-  const unsigned long BUFSZ = nsamps;
-
   PartialList *partials = NULL;
 
-  double samples[BUFSZ];
+  double samples[nsamps];
 
   memcpy(samples, in, nsamps);
 
@@ -125,8 +123,8 @@ synthesizestream (double f0, double *in, unsigned int nsamps, double sr)
   partials = createPartialList();
   analyze(samples, nsamps, sr, partials);
 
-  memset(samples, 0, BUFSZ * sizeof(double));
-  nsamps = synthesize(partials, samples, BUFSZ, sr);
+  memset(samples, 0, nsamps * sizeof(double));
+  nsamps = synthesize(partials, samples, nsamps, sr);
 
   return partials;
 } //destroyPartialList(partials);
