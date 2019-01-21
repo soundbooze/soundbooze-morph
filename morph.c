@@ -46,7 +46,7 @@ morphstream (PartialList *src1, PartialList *src2, unsigned int nsamps, double s
   destroyLinearEnvelope(reference);
   reference = 0;
 
-  /* shift pitch of clarinet partials */
+  /* shift pitch of src partials */
   linearEnvelope_insertBreakpoint(pitchenv, 0, -600);
   shiftPitch(src1, pitchenv);
   destroyLinearEnvelope(pitchenv);
