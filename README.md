@@ -7,3 +7,5 @@ Realtime Jack-Loris Stream Morphing
 # API
 
 - http://www.cerlsoundgroup.org/Loris/
+- https://github.com/jamiebullock/LibXtract
+- http://jackaudio.org/api/
