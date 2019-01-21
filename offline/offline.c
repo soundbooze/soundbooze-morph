@@ -149,7 +149,7 @@ morphstream (PartialList *src1, PartialList *src2, unsigned int nsamps, double s
 
   double src1_times[] = {0.1, 1.};
   double src2_times[] = {0.3, 1.};
-  double tgt_times[] = {0.2, 1.2};
+  double tgt_times[] = {0.2, 0.4};
 
   /* channelize and distill */
   reference = createF0Estimate(src1, 350, 450, 0.01);
