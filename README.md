@@ -2,7 +2,12 @@
 
 Realtime Jack-Loris Stream Morphing
 
-![alt text](https://raw.githubusercontent.com/soundbooze/soundbooze-morph/master/morph-jack.png "Home")
+![alt text](https://raw.githubusercontent.com/soundbooze/soundbooze-morph/master/logo.png "Home")
+
+# TODO
+
+- GUI parameter
+- footswitch MIDI / glass-ware
 
 # API
 
