@@ -110,7 +110,7 @@ xtract_f0 (const double *data, const int N, const void *argv, double *result)
 PartialList *
 synthesize (double f0, unsigned int nsamps, double sr)
 {
-  const unsigned long BUFSZ = nsamps; //44100 * 4; 
+  const unsigned long BUFSZ = nsamps;
 
   PartialList *partials = NULL;
 
