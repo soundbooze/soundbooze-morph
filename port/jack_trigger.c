@@ -20,7 +20,7 @@
  *
  */
 
-// gcc jack_trigger.c -o jack_trigger `pkg-config --libs --cflags jack` -lm -Wall -O3
+// gcc jack_trigger.c -o jack_trigger `pkg-config --libs --cflags jack` -lm -lasound  -Wall -O3
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,9 +29,16 @@
 #include <math.h>
 #include <errno.h>
 #include <jack/jack.h>
+#include <alsa/asoundlib.h>
 
 jack_port_t *input_port;
 jack_client_t *client;
+
+snd_seq_t *seq;
+snd_seq_event_t ev;
+
+int port;
+int dest_client = 129, dest_port = 0;
 
 #define DEFAULT_THRESHOLD   0.20
 #define DEFAULT_BUFFER_SIZE 1024
@@ -161,6 +168,38 @@ freq2note (double frequency)
    return (int) round(noteNum) + 69;
 }
       
+void 
+send_ev (void) {
+	snd_seq_ev_set_direct(&ev);
+	snd_seq_ev_set_source(&ev, port);
+	snd_seq_ev_set_dest(&ev, dest_client, dest_port);
+	snd_seq_event_output(seq, &ev);
+}
+
+void 
+note_on (int note) {
+	snd_seq_ev_set_noteon(&ev, 0, note, 120);
+	send_ev();
+}
+
+void 
+note_off (int note) {
+	snd_seq_ev_set_noteoff(&ev, 0, note, 120);
+	send_ev();
+}
+
+void
+trigger (int note)
+{
+	note_on(note);
+	snd_seq_drain_output(seq);
+  usleep(3121);
+
+	note_off(note);
+	snd_seq_drain_output(seq);
+	usleep(3121);
+}
+
 int
 process (jack_nframes_t nframes, void *arg)
 {
@@ -174,8 +213,7 @@ process (jack_nframes_t nframes, void *arg)
   int note = freq2note(TarsosDSP_getPitch(sr, len, in));
 
   if (note >= 0 && note <= 128) {
-    printf("%d\n", note);
-    // jack_midi trigger <-> qmidinet (min a2jmidi)
+    trigger(note);
   }
 
   return 0;      
@@ -236,13 +274,44 @@ jack_init (void)
 }
 
 int
+alsa_init (void)
+{
+	if (snd_seq_open(&seq, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) {
+		fprintf(stderr, "Error: snd_seq_open\n");
+		return -1;
+	}
+
+	port = snd_seq_create_simple_port(seq, "trigger", SND_SEQ_PORT_CAP_READ, SND_SEQ_PORT_TYPE_MIDI_GENERIC | 
+                                                  SND_SEQ_PORT_TYPE_APPLICATION);
+	if (port < 0) {
+		fprintf(stderr, "Error: snd_seq_create_simple_port\n");
+		snd_seq_close(seq);
+		return -1;
+	}
+
+	if (snd_seq_connect_to(seq, port, dest_client, dest_port) < 0) {
+		fprintf(stderr, "Error: snd_seq_connect_to\n");
+		snd_seq_close(seq);
+		return -1;
+	}
+
+  return 0;
+}
+
+int
 main (int argc, char *argv[])
 {
+
+  if (argc > 1)
+    dest_client = atoi(argv[1]);
+
   jack_init();
+  alsa_init();
 
   sleep (-1);
 
   jack_client_close (client);
+	snd_seq_close(seq);
 
   return EXIT_SUCCESS;
 }
