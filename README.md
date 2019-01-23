@@ -9,6 +9,13 @@
 - Ring buffer copy (min: 1s +)
 - GUI parameter
 - footswitch MIDI / glass-ware
+- ...
+
+```
+multi player-instrumen / sources
+event based , dynamic features (ts/spectral) - libXtract, vamp, essentia etc
+db measure - balancer (libxtract) = [i] * / 
+```
 
 # API
 
