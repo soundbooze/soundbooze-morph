@@ -1,5 +1,5 @@
 /*
-   gcc jack_convolution.c -o jack_convolution `pkg-config --libs --cflags jack` -lm -Wall -O3
+   gcc jack_convolution.c -o jack_convolution `pkg-config --libs --cflags jack` -lm -Wall -O3 -lsndfile
 */
 
 #include <stdio.h>
@@ -90,6 +90,9 @@ process (jack_nframes_t nframes, void *arg)
   float *conv1 = (float *) calloc (convLen, sizeof (float));
   float *conv2 = (float *) calloc (convLen, sizeof (float));
 
+  memset(conv1, 0, convLen * sizeof(conv1[0]));
+  memset(conv2, 0, convLen * sizeof(conv2[0]));
+
   for (long n = 0; n < convLen; n++) {
     long kmin, kmax, k;
 
@@ -102,8 +105,21 @@ process (jack_nframes_t nframes, void *arg)
     }
   }
 
-  memcpy (output1_out, conv1, sizeof (jack_default_audio_sample_t) * nframes);
-  memcpy (output2_out, conv2, sizeof (jack_default_audio_sample_t) * nframes);
+  int i = 0;
+  for (; i < convLen; i += len) {
+    float o1[len]; 
+    float o2[len];
+
+    int j = i;
+    int z = 0;
+    for (; j < i+len; j++, z++) {
+      o1[z] = conv1[j];
+      o2[z] = conv2[j];
+    }
+      
+    memcpy (output1_out, o1, len);
+    memcpy (output2_out, o2, len);
+  }
 
   free(conv1); free(conv2);
 
