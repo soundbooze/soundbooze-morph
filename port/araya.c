@@ -32,14 +32,14 @@ process (jack_nframes_t nframes, void *arg)
 
   int i = 0;
   for (i = 0; i < len; i++) {
-    x1 = input1_in[i];
-    x2 = input2_in[i];
+    float x1 = input1_in[i];
+    float x2 = input2_in[i];
     arayaout_1[i] = (3 * x1) / 2 * (1 - ((x1 * x1)/3));
     arayaout_2[i] = (3 * x2) / 2 * (1 - ((x1 * x2)/3));
   }
 
-  memcpy (output1_out, arayaoout_1, sizeof (jack_default_audio_sample_t) * nframes);
-  memcpy (output2_out, arayaoout_2, sizeof (jack_default_audio_sample_t) * nframes);
+  memcpy (output1_out, arayaout_1, sizeof (jack_default_audio_sample_t) * nframes);
+  memcpy (output2_out, arayaout_2, sizeof (jack_default_audio_sample_t) * nframes);
 
   return 0;      
 }
