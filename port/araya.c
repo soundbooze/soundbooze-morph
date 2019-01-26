@@ -53,7 +53,7 @@ jack_shutdown (void *arg)
 int
 main (int argc, char *argv[])
 {
-  const char *client_name = "tanhf";
+  const char *client_name = "araya";
 
   jack_options_t options = JackNullOption;
   jack_status_t status;
