@@ -38,8 +38,8 @@ process (jack_nframes_t nframes, void *arg)
     arayaout_2[i] = (3 * x2) / 2 * (1 - ((x1 * x2)/3));
   }
 
-  memcpy (output1_out, tanhout_1, sizeof (jack_default_audio_sample_t) * nframes);
-  memcpy (output2_out, tanhout_2, sizeof (jack_default_audio_sample_t) * nframes);
+  memcpy (output1_out, arayaoout_1, sizeof (jack_default_audio_sample_t) * nframes);
+  memcpy (output2_out, arayaoout_2, sizeof (jack_default_audio_sample_t) * nframes);
 
   return 0;      
 }
