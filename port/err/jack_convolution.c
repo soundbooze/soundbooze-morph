@@ -17,13 +17,13 @@ jack_port_t *output_port1, *output_port2;
 jack_client_t *client;
 
 long impulseLen; 
-double *impulseSignal;
+float *impulseSignal;
 
-double *
+float *
 readWav (char *filename, long *len) {
 
   SF_INFO sndInfo_r;
-  double *buffer_r;
+  float *buffer_r;
   long numFrames;
 
   SNDFILE *sndFile_r = sf_open(filename, SFM_READ, &sndInfo_r);
@@ -32,28 +32,28 @@ readWav (char *filename, long *len) {
     exit(EXIT_FAILURE);
   }
 
-  buffer_r = malloc((sndInfo_r.frames * sndInfo_r.channels) * sizeof(double));
+  buffer_r = malloc((sndInfo_r.frames * sndInfo_r.channels) * sizeof(float));
   if (buffer_r == NULL) {
     fprintf(stderr, "malloc error\n");
     sf_close(sndFile_r);
     exit(EXIT_FAILURE);
   }
 
-  numFrames = sf_readf_double(sndFile_r, buffer_r, sndInfo_r.frames * sndInfo_r.channels);
+  numFrames = sf_readf_float(sndFile_r, buffer_r, sndInfo_r.frames * sndInfo_r.channels);
   if (numFrames != sndInfo_r.frames) {
-    fprintf(stderr, "sf_readf_double problem\n");
+    fprintf(stderr, "sf_readf problem\n");
     sf_close(sndFile_r);
     free(buffer_r);
     exit(EXIT_FAILURE);
   }
 
   if (sndInfo_r.channels == 2) {
-    double *buffer_m = malloc((sndInfo_r.frames) * sizeof(double));
+    float *buffer_m = malloc((sndInfo_r.frames) * sizeof(float));
 
-    for (int i = 0; i < sndInfo_r.frames; i++) {
+    for (unsigned int i = 0; i < sndInfo_r.frames; i++) {
       buffer_m[i] = 0;
 
-      for(int j = 0; j < sndInfo_r.channels; j++) {
+      for(unsigned int j = 0; j < sndInfo_r.channels; j++) {
         buffer_m[i] += buffer_r[i * sndInfo_r.channels + j];
       }
 
@@ -67,13 +67,36 @@ readWav (char *filename, long *len) {
 
   sf_close(sndFile_r);
   *len = numFrames;
+
   return buffer_r;
+}
+
+float *
+convolve (float *originalSignal, long originalLen, float *impulseSignal, long impulseLen)
+{
+  long convLen = (originalLen + impulseLen) - 1;
+  long iLen = impulseLen - 1;
+  long oLen = originalLen - 1;
+
+  float *convSignal = (float *) calloc (convLen, sizeof (float));
+ 
+  for (long n = 0; n < convLen; n++) {
+    long kmin, kmax, k;
+    kmin = (n >= iLen) ? n - iLen : 0;
+    kmax = (n < oLen) ? n : oLen;
+    for (k = kmin; k <= kmax; k++) {
+      convSignal[n] += originalSignal[k] * impulseSignal[n - k];
+    }
+  }
+
+  return convSignal;
 }
 
 int
 process (jack_nframes_t nframes, void *arg)
 {
   jack_default_audio_sample_t *input1_in, *input2_in, *output1_out, *output2_out;
+  jack_default_audio_sample_t *conv_1, *conv_2;
 
   input1_in = jack_port_get_buffer (input_port1, nframes);
   output1_out = jack_port_get_buffer (output_port1, nframes);
@@ -81,47 +104,18 @@ process (jack_nframes_t nframes, void *arg)
   input2_in = jack_port_get_buffer (input_port2, nframes);
   output2_out = jack_port_get_buffer (output_port2, nframes);
 
-  int len = sizeof (jack_default_audio_sample_t) * nframes;
+  conv_1 = convolve(input1_in, nframes, impulseSignal, impulseLen);
+  conv_2 = convolve(input2_in, nframes, impulseSignal, impulseLen);
 
-  long convLen = (len + impulseLen) - 1;
-  long iLen = impulseLen - 1;
-  long oLen = len - 1;
+  jack_default_audio_sample_t out1_out[nframes];
+  jack_default_audio_sample_t out2_out[nframes];
 
-  float *conv1 = (float *) calloc (convLen, sizeof (float));
-  float *conv2 = (float *) calloc (convLen, sizeof (float));
+  // resample
 
-  memset(conv1, 0, convLen * sizeof(conv1[0]));
-  memset(conv2, 0, convLen * sizeof(conv2[0]));
+  memcpy (output1_out, out1_out, sizeof (jack_default_audio_sample_t) * nframes);
+  memcpy (output2_out, out2_out, sizeof (jack_default_audio_sample_t) * nframes);
 
-  for (long n = 0; n < convLen; n++) {
-    long kmin, kmax, k;
-
-    kmin = (n >= iLen) ? n - iLen : 0;
-    kmax = (n < oLen) ? n : oLen;
-
-    for (k = kmin; k <= kmax; k++) {
-      conv1[n] += input1_in[k] * impulseSignal[n - k];
-      conv2[n] += input2_in[k] * impulseSignal[n - k];
-    }
-  }
-
-  int i = 0;
-  for (; i < convLen; i += len) {
-    float o1[len]; 
-    float o2[len];
-
-    int j = i;
-    int z = 0;
-    for (; j < i+len; j++, z++) {
-      o1[z] = conv1[j];
-      o2[z] = conv2[j];
-    }
-      
-    memcpy (output1_out, o1, len);
-    memcpy (output2_out, o2, len);
-  }
-
-  free(conv1); free(conv2);
+  free(conv_1); free(conv_2);
 
   return 0;      
 }
@@ -146,6 +140,7 @@ main (int argc, char *argv[])
   }
 
   impulseSignal = readWav(argv[1], &impulseLen);
+
   /* free(impulseSignal); */
 
   client = jack_client_open (client_name, options, &status, NULL);
