@@ -4,7 +4,7 @@
 
 ( Realtime | Non-realtime ) Jack-Loris Stream Morphing
 
-![alt text](https://raw.githubusercontent.com/soundbooze/soundbooze-morph/master/logo.png "Home")
+![alt text](https://raw.githubusercontent.com/soundbooze/soundbooze-uduk/master/logo.png "Home")
 
 # TODO
 
